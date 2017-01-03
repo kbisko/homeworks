@@ -1,0 +1,130 @@
+---
+title: "MSA8190 - HW5"
+author: "Kristen Biskobing"
+date: "October 11, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+setwd("C:/Users/CB/Desktop/School/MSA8190")
+library("xlsx")
+library("plyr")
+```
+
+### Problem 1
+The percentage of cotton in material used to manufacture mens shirts follows.
+
+```{r}
+df <- as.matrix(read.xlsx("HW5_data.xlsx",sheetIndex = 1))
+```
+####(a) Compute the sample mean, variance and median.
+```{r}
+mu<-mean(df)
+var<-var(df)
+med<-median(df)
+mu
+var[1]
+med
+```
+####(b) Construct a stem-and-leaf display for the data.
+```{r}
+stem(df)
+```
+####(c) Construct a frequency distribution and histogram for the cotton content.
+```{r}
+factordf<-factor(cut(df, breaks=c(32, 33, 34, 35, 36, 37, 38)))
+dffd<-as.data.frame(table(factordf))
+dffd
+hist(df)
+```
+
+####(d) Construct a box plot of the data and comment on the information in this display.
+```{r}
+boxplot(df)
+```
+There are no outliers in the data set. 
+It seems to be fairly evenly spread with the second quantile being midway between the first and third quantiles. 
+There is a slightly larger range in the upper whisker than the lower.  
+
+
+### Problem 2
+The following data are the viscosity measurements for a chemical product observed hourly (read down, then left to right).
+```{r}
+df2 <- as.matrix(read.xlsx("HW5_data.xlsx",sheetIndex = 2))
+```
+####(a) Construct and interpret either a digidot plot or a separate stem-and-leaf and time series plot of these data.
+```{r}
+stem(df2)
+plot(ts(df2))
+```
+
+
+The viscosity remains remotely steady around 48 until the 25 hour when it plummets drastically to an average of 43.
+
+####(b) Specifications on product viscosity are at 48 กำ 2. What conclusions can you make about process performance?
+Until the 25th hour, the process falls within the product specifications. After the 25th hour the product is no longer acceptable. 
+
+### Problem 8
+Regression methods were used to analyze the data from a study investigating the relationship
+between roadway surface temperature (x) and pavement deflection (y). Summary quantities were:
+```{r}
+n<-20
+yi<-12.7
+yi2<-8.8
+xi<-1487
+xi2<-143215
+xiyi<-1083
+```
+####(a) Calculate the least squares estimates of the slope and intercept. Graph the regression line.
+```{r}
+A<-matrix(c(xi2, xi, xi, 1), 2, 2)
+A
+B<-matrix(c(xiyi, yi),2,1)
+B
+c<-solve(A, B)
+slope<-c[1]
+intercept<-c[2]
+fx8<- function(x) slope*x+intercept
+plot(fx8)
+```
+####(b) Use the equation of the fitted line to predict what pavement deflection would be observed when the surface temperature is 85 ???F.
+```{r}
+fx8(85)
+```
+####(c) What is the mean pavement deflection when the surface temperature is 90???F?
+```{r}
+fx8(90)
+```
+####(d) What change in mean pavement deflection would be expected for a 1???F change in surface temperature?
+an increase of `r slope` in the deflection
+
+### Problem 9
+A rocket motor is manufactured by bonding together two types of propellants, an igniter
+and a sustainer. The shear strength of the bond y is thought to be a linear function of the
+age of the propellant x when the motor is cast. Twenty observations are shown in the table
+below (Excel file also uploaded in D2L).
+####(a) Draw a scatter diagram of the data. Does the straight-line regression model seem to be plausible? Yes, with a negative slope
+```{r}
+strength <- as.matrix(read.xlsx("HW5_data.xlsx",sheetIndex = 3, colIndex=1) )
+age <- as.matrix(read.xlsx("HW5_data.xlsx",sheetIndex = 3, colIndex=2) )
+plot(age,strength)
+cor(age, strength)
+```
+
+####(b) Find the least squares estimates of the slope and intercept in the simple linear regression model. Find an estimate of ??2.
+```{r}
+lmsum<-summary(lm(strength~age))
+lmsum
+sigmasq<-sum(resid(lmsum)^2)/18
+sigmasq
+fx<- function(x) -36.962*x+2625.385
+plot(age,strength)
+abline(lm(strength~age))
+```
+
+####(c) Estimate the mean shear strength of a motor made from propellant that is 20 weeks old.
+```{r}
+fx(20)
+```

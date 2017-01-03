@@ -1,0 +1,6 @@
+---
+title. "MSA8190-HW7"
+author. "Kristen Biskobing"
+date. "October 28, 2016"
+output. html_document
+---

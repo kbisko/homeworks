@@ -1,0 +1,204 @@
+---
+title: "HW2 - MSA8190"
+author: "Kristen Biskobing"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+
+rm(list=ls())
+setwd("C:/Users/kbiskobing/Documents/School/MSA8190/HW2")
+
+```
+
+###Problem 1 
+The phone lines to an airline reservation system are occupied 30% of the time.  Assume that the events that the lines are occupied on successive calls are independent.  Assume that 10 calls are placed to the airline.
+
+(a)  What is the probability that for exactly three calls the lines are occupied? P(X=3)
+```{r}
+dbinom(3, 10, 0.3)
+```
+(b)  What is the probability that for at least one call the lines are not occupied? P(X>=1)
+```{r}
+sum(dbinom(1:10, 10, 0.7))
+```
+(c)  What is the expected number of calls in which the lines are all occupied? E(x)=n*p
+```{r}
+10*0.3
+```
+
+###Problem 2 
+Samples of 24 parts from a metal punching process are selected every hour. Typically, 1% of the parts require rework. Let X denote the number of parts in the sample of 24 that require rework. A process problem is suspected if X exceeds its mean by more than three standard deviations.
+
+(a)  If the percentage of parts that require rework remains at 1%, what is the probability that X exceeds its mean by more than three standard deviations? p=0.01, n=24, E(x)=n*p, Var(x)=n*p(1-p)
+```{r}
+p=0.01
+n=24
+ex<-n*p
+varx<-n*p*(1-p)
+sd<-sqrt(varx)
+x<-ceiling(ex+(3*sd)) #round up to the nearest whole number
+y<-floor(ex-(3*sd)) #round down to nearest whole number
+#using x-1 to compensate for lower.tail=FALSE where (X>x) instead of (X>=x)
+pbinom(x-1, 24, 0.01, lower.tail=FALSE)+pbinom(y, 24, 0.01)
+```
+(b)  If the rework percentage increases to 4%, what is the probability that X exceeds 1? p(x>1)
+```{r}
+pbinom(1, 24, 0.04, lower.tail=FALSE)
+```
+(c)  If the rework percentage increases to 4%, what is the probability that X exceeds 1 in at least one of the next five hours of samples? n=120
+```{r}
+pbinom(0, 120, 0.04, lower.tail=FALSE)
+```
+
+###Problem 3 
+Consider a sequence of independent Bernoulli trials with p=0.2
+
+(a)  What is the expected number of trials to obtain the first success?
+```{r}
+1/0.2
+```
+(b)  After the eighth success occurs, what is the expected number of trials to obtain the ninth success?
+```{r}
+#due to lack of memory property, it will have the same E(x)
+1/0.2
+```
+
+###Problem 4 
+In  a  clinical  study,  volunteers  are  tested  for  a  gene that  has  been  found  to  increase  the risk for a disease.  The probability that a person carries the gene is 0.1
+
+(a)  What is the probability 4 or more people will have to be tested before 2 with the gene are detected?
+```{r}
+#since lower.tail gives (X>x), to get 4 or more we have to use 3 as x
+pnbinom(3, 2, 0.1, lower.tail=FALSE) 
+```
+(b)  How many people are expected to be tested before 2 with the gene are detected?
+```{r}
+#E(x)=r/p
+2/0.1
+```
+
+###Problem 5 
+A trading company has eight computers that it uses to trade on the New York Stock Exchange(NYSE).  The  probability  of  a  computer  failing  in  a  day  is  0.005,  and  the  computers  fail independently.  Computers are repaired in the evening and each day is an independent trial.
+
+(a)  What is the probability that all eight computers fail in a day?
+```{r}
+dbinom(8,8,0.005)
+```
+(b)  What is the mean number of days until a specific computer fails?
+```{r}
+1/0.005
+```
+(c)  What is the mean number of days until all eight computers fail in the same day?
+```{r}
+1/dbinom(8,8,0.005)
+```
+
+###Problem 6 
+An electronic scale in an automated filling operation stops the manufacturing line after three underweight packages are detected.  Suppose that the probability of an underweight packageis 0.001 and each fill is independent.
+
+(a)  What is the mean number of fills before the line is stopped?
+```{r}
+#E(x)=r/p
+3/.001
+```
+(b)  What is the standard deviation of the number of fills before the line is stopped?
+```{r}
+#Var(x)=r*(1-p)/(p^2)
+sqrt((3*(1-.001))/(.001^2))
+```
+
+###Problem 7 
+A company employs 800 men under the age of 55.  Suppose that 30% carry a marker on the male chromosome that indicates an increased risk for high blood pressure.
+
+(a)  If 10 men in the company are tested for the marker in this chromosome, what is the probability that exactly 1 man has the marker?
+```{r}
+dhyper(1,240,560,10)
+```
+(b)  If 10 men in the company are tested for the marker in this chromosome, what is the probability that more than 1 has the marker?
+```{r}
+phyper(1,240,560,10,lower.tail=FALSE)
+```
+
+###Problem 8 
+A lot of 75 washers contains 5 in which the variability in thickness around the circumference of  the  washer  is  unacceptable.   A  sample  of  10  washers  is  selected  at  random,  without replacement.
+
+(a)  What is the probability that none of the unacceptable washers is in the sample?
+```{r}
+dhyper(0,5,70,10)
+```
+(b)  What is the probability that at least one unacceptable washer is in the sample?
+```{r}
+phyper(0,5,70,10,lower.tail=FALSE)
+```
+(c)  What is the probability that exactly one unacceptable washer is in the sample?
+```{r}
+dhyper(1,5,70,10)
+```
+(d)  What is the mean number of unacceptable washers in the sample?
+```{r}
+#E(x)= k*p, p= m/(m+n)
+10*(5/75)
+```
+
+###Problem 9 
+The number of telephone calls that arrive at a phone exchange is often modeled as a Poisson random variable.  Assume that on the average there are 10 calls per hour.
+(a)  What is the probability that there are exactly 5 calls in one hour?
+```{r}
+dpois(5,10)
+```
+(b)  What is the probability that there are 3 or less calls in one hour?
+```{r}
+ppois(3,10)
+```
+(c)  What is the probability that there are exactly 15 calls in two hours?
+```{r}
+dpois(15,20)
+```
+(d)  What is the probability that there are exactly 5 calls in 30 minutes?
+```{r}
+dpois(5,5)
+```
+
+###Problem 10 
+The number of surface flaws in plastic panels used in the interior of automobiles has a Poisson distribution with a mean of 0.05 flaw per square foot of plastic panel.  Assume an automobile interior contains 10 square feet of plastic panel.
+(a)  What is the probability that there are no surface flaws in an auto's interior? 
+```{r}
+x=0.05*10
+dpois(0,x)
+```
+(b)  If 10 cars are sold to a rental company, what is the probability that none of the 10 cars has any surface flaws?
+```{r}
+dpois(0,(x*10))
+```
+(c)  If 10 cars are sold to a rental company, what is the probability that at most one car has any surface flaws?
+```{r}
+ppois(1,(x*10))
+```
+
+###Problem 11 
+The number of errors in a textbook follow a Poisson distribution with a mean of 0.01 errors per page.  What is the probability that there are three or less errors in 100 pages?
+```{r}
+ppois(3,(100*0.01))
+```
+
+###Problem 12 
+You take a multiple-choice exam consisting of 50 questions.  Each question has 5 possible responses of which only one is correct.  A correct answer is worth 1 point.  You have not studied for the exam and therefore decide to guess the correct answers.  Let X = the numberof correct responses on the test.
+(a)  What is of probability distribution of X?
+```{r}
+#Binomial f(x)=choose(50,x)*0.2^x*0.8^(50-x)
+x<-seq(0,50, by=1) #all possible x's
+y<-dbinom(x,50,0.2) #create the prob for each instance
+plot(x,y) #show the graph
+```
+
+(b)  What score do you expect?
+```{r}
+#E(x)= n*p
+50*0.2
+```
+(c)  What is the variance of X?
+```{r}
+#E(x)= n*p*(1-p)
+50*0.2*0.8
+```

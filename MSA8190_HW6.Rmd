@@ -1,0 +1,488 @@
+---
+title: "MSA8190-HW6"
+author: "Kristen Biskobing"
+date: "October 14, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+#setwd("H:/Desktop/School/MSA8190/homeworks")
+library("pwr")
+library("zoo")
+```
+
+## Problem 1
+A confidence interval estimate is desired for the gain in a circuit on a semiconductor device. Assume that gain is normally distributed with standard deviation sigma = 20.
+```{r }
+sigma <- 20
+```
+
+###(a) Find a 95% CI for mu when n = 10 and x_bar = 1000. alpha<-0.05
+```{r }
+alpha <-0.05 
+n <- 10
+x_bar<-1000
+za<-qnorm(alpha/2, lower.tail=FALSE)
+cil<-x_bar-(za*(sigma/sqrt(n)))
+ciu<-x_bar+(za*(sigma/sqrt(n)))
+```
+The confidence interval is [`r cil`, `r ciu`]
+
+###(b) Find a 95% CI for mu when n = 25 and x_bar = 1000. alpha<-0.05
+```{r }
+alpha <-0.05 
+n <- 25
+x_bar<-1000
+za<-qnorm(alpha/2, lower.tail=FALSE)
+cil<-x_bar-(za*(sigma/sqrt(n)))
+ciu<-x_bar+(za*(sigma/sqrt(n)))
+```
+The confidence interval is [`r cil`, `r ciu`]
+
+###(c) Find a 99% CI for mu when n = 10 and x_bar = 1000. alpha<-0.01
+```{r }
+alpha <-0.01 
+n <- 10
+x_bar<-1000
+za<-qnorm(alpha/2, lower.tail=FALSE)
+cil<-x_bar-(za*(sigma/sqrt(n)))
+ciu<-x_bar+(za*(sigma/sqrt(n)))
+```
+The confidence interval is [`r cil`, `r ciu`]
+
+
+###(d) Find a 99% CI for mu when n = 25 and x_bar = 1000. alpha<-0.01
+```{r }
+alpha <-0.01
+n <- 25
+x_bar<-1000
+za<-qnorm(alpha/2, lower.tail=FALSE)
+cil<-x_bar-(za*(sigma/sqrt(n)))
+ciu<-x_bar+(za*(sigma/sqrt(n)))
+```
+The confidence interval is [`r cil`, `r ciu`]
+
+##Problem 2
+A manufacturer produces piston rings for an automobile engine. It is known that ring
+diameter is normally distributed with sigma = 0.001 millimeters. A random sample of 15 rings
+has a mean diameter of x_bar = 74.036 millimeters.
+```{r }
+sigma <- 0.001
+x_bar <- 74.036
+n <- 15
+```
+###(a) Construct a 99% two-sided confidence interval on the mean piston ring diameter.
+```{r }
+alpha <- 0.01
+za<-qnorm(alpha/2, lower.tail=FALSE)
+cil<-x_bar-(za*(sigma/sqrt(n)))
+ciu<-x_bar+(za*(sigma/sqrt(n)))
+```
+The confidence interval is [`r cil`, `r ciu`]
+
+###(b) Construct a 95% lower-confidence bound on the mean piston ring diameter.
+```{r }
+alpha <- 0.05
+za<-qnorm(alpha, lower.tail=FALSE)
+cil<-x_bar-(za*(sigma/sqrt(n)))
+```
+The confidence interval is [`r cil`, \infinity ]
+
+##Problem 3
+A manufacturer produces crankshafts for an automobile engine. The wear of the crankshaft
+after 100,000 miles (0.0001 inch) is of interest because it is likely to have an impact on
+warranty claims. A random sample of n = 15 shafts is tested and x_bar = 2.78. It is known that
+sigma = 0.9 and that wear is normally distributed.
+```{r }
+sigma <- 0.9
+x_bar <- 2.78
+n <- 15
+```
+###(a) Test H0 : mu = 3 versus H1 : mu != 3 using alpha = 0.05
+```{r }
+mu <- 3
+alpha <- 0.05
+zk<-(x_bar-mu)/(sigma/sqrt(n))
+za<-qnorm(alpha/2, lower.tail=FALSE)
+abs(zk)>za
+```
+So mu=3 is not rejected. 
+
+###(b) What is the power of this test if mu = 3.25?
+```{r }
+d<-(3.25-2.78)/sigma
+pwr.norm.test(d=d,sig.level=alpha, n=n )
+```
+###(c) What sample size would be required to detect a true mean of 3.75 if we wanted the power to be at least 0.9?
+```{r }
+d<-(3.75-2.78)/sigma
+pwr.norm.test(d=d,sig.level=alpha, power=0.9)
+```
+###(d) Explain how the question in part (a) could be answered by using p-value and confidence interval.
+The confidence interval could be found using the below code.
+```{r }
+  cil<-x_bar-(za*(sigma/sqrt(n)))
+  ciu<-x_bar+(za*(sigma/sqrt(n)))
+```
+Since `r mu` is between `r cil` `r ciu` we do not reject the hypothesis. 
+
+The p-value is calculated by taking pnorm of the computed test statistic and applying the following:
+```{r }  
+  p<-2*(1-pnorm(zk,0,1))
+  p<alpha
+```  
+Since p<alpha is false, we do not reject the hypothesis. 
+  
+##  Problem 4
+###Calculate the following probabilities.
+###(a) If X1,X2,X3 ~ NID(mu = 1, sig2 = 1), what is P(X1 + X2 > X3)?
+P(X1 + X2 > X3) = P(X1+X2-X3>0) 
+E(X1+X2-X3) = 1+1-1=1
+Var(X1+X2-X3) = 1+1-1=1
+so X1+X2-X3~NID(1,1) and 
+```{r }
+pnorm(0,1,sqrt(1), lower.tail=FALSE)
+```
+
+###(b) If X1,X2 ~ NID(mu = 0, sig2), what is P(X_bar < S)?
+P(X-bar<S) = P(X-bar-S<0) 
+X_bar~N(0,S^2/n)
+(n-1)S^2/sigma^2~X^2(n-1)
+E(S^2)=sigma^2
+E(X-bar-S) = 1+1-1=1
+Var(X-bar-S) = 1+1-1=1
+so X-bar-S~NID(1,1) and 
+```{r }
+pnorm(0,1,sqrt(1))
+```
+
+###(c) If X1,X2 ~ NID(mu = 0, sig2), what is P(X1 + X2 < sqrt(2(X1-X2)^2)?
+P(X1 + X2 < sqrt(2(X1-X2)^2)) = P(X1+X2-sqrt(2(X1-X2)^2)<0) 
+E(X1+X2-sqrt(2(X1-X2)^2)) = 0+0-0=0
+Var(X1+X2-sqrt(2(X1-X2)^2)) = 1+1-1=1 ???? 
+so X1+X2-sqrt(2(X1-X2)^2)~NID(0,???) and 
+```{r }
+pnorm(0,1,sqrt(1))
+```
+
+###(d) If X1,X2 ~ NID(mu = 0, sig2), Y1,Y2 ~ NID(mu = 0; 2sig2), and X's and Y 's are independent, what is
+P(X1 + X2 > X3) = P(X1+X2-X3>0) 
+E(X1+X2-X3) = 1+1-1=1
+Var(X1+X2-X3) = 1+1-1=1
+so X1+X2-X3~NID(1,1) and 
+```{r }
+pnorm(0,1,sqrt(1), lower.tail=FALSE)
+```
+
+##Problem 5
+The compressive strength of concrete is being tested by a civil engineer. He tests 12 specimens and obtains the following data.
+```{r } 
+d5<-c(2216,2237,2225,2301,2318,2255,2249,2204,2281,2263,2275,2295)
+n<-12
+```
+###(a) Is there evidence to support the assumption that compressive strength is normally distributed? Does this data set support your point of view? Include a graphical display in your answer.
+```{r } 
+x_bar<-mean(d5)
+s<-sd(d5)
+
+alpha<-0.05
+qqnorm(d5); qqline(d5)
+```
+Yes, the data seens to follow a normal distribution. The probability plot is very accurate close to the 0 quantile and varies more the farther out you go.  
+
+###(b) Test the normality of the data by Shapiro-Wilk test?
+```{r } 
+shapiro.test(d5)
+```
+The test gives a very high p value, much larger than any normal alpha, so we can not reject that this has a normal distribution.
+
+###(c) Construct a 95% two-sided confidence interval on the mean strength.
+```{r } 
+ta<-qt(0.025, n-1, lower.tail=FALSE)
+cil<-x_bar-(ta*(s/sqrt(n)))
+ciu<-x_bar+(ta*(s/sqrt(n)))  
+```
+The confidence interval is [`r cil`, `r ciu`].
+
+###(d) Construct a 95% lower-confidence bound on the mean strength.
+```{r } 
+ta<-qt(0.05, n-1, lower.tail=FALSE)
+cil<-x_bar-(ta*(s/sqrt(n)))
+```
+The confidence interval is [`r cil`, \infinity].
+
+##Problem 6
+The sugar content of the syrup in canned peaches is normally distributed. Suppose that the
+variance is thought to be sigma^2 = 18 (milligrams). A random sample of n = 10 cans yields a
+sample standard deviation of s = 4.8 milligrams.  
+```{r } 
+var<-18
+n<-10
+s<-4.8
+```
+###(a) Test the hypothesis H0 : sigma^2 = 18 versus H1 : sigma^2 != 18 using alpha = 0.05.
+Have to check both sides since not symmetric
+```{r } 
+alpha<-0.05
+chi20<-(((n-1)*s^2)/var)
+chia2l<-qchisq(alpha/2,n-1)
+chia2u<-qchisq(alpha/2,n-1, lower.tail=FALSE)
+chi20>chia2u
+chi20<chia2l
+```
+Since it is not smaller than the lower bound or larger than the upper bound, we can not reject the null hypothesis.
+
+###(b) What is the P-value for this test?
+```{r } 
+2*(1-pchisq(chi20, n-1))
+```
+###(c) Find a 95% two-sided confidence interval for sigma.
+```{r } 
+clb<-(((n-1)*s^2)/chia2u)
+cub<-(((n-1)*s^2)/chia2l)
+```
+The confidence interval is [`r clb`, `r cub`].
+
+###(d) Find a 90% lower confidence bound for sigma.
+```{r } 
+(((n-1)*s^2)/qchisq(0.1,n-1, lower.tail=FALSE))
+```
+###(e) Discuss how part (a) could be answered by constructing a 95% two-sided confidence interval for sigma.
+
+The hypothesis could also be tested by conducting a confidence interval using the sample variance. If the expected value of the variance falls outside of the interval then the hypothesis is rejected. 
+
+###(f) Suppose that the true variance is sigma2 = 40. How large a sample would be required to detect this difference with probability at least 0.90?
+```{r }
+lambda<-sqrt(40)/s
+B<-0.90 
+pwr.chisq.test(w=lambda, df=n-1, sig.level=alpha/2, power=B)
+```
+Using the pwr.chisq.test an N=12 would be needed. 
+
+##Problem 7
+The rainfall in acre-feet from 20 clouds that were selected at random and seeded with silver
+nitrate follows:
+```{r } 
+d7<-c(18.0,30.7,19.8,27.1,22.3,18.8,31.8,23.4,21.2,27.9,31.9,27.1,25.0,24.7,26.9,21.8,29.2,34.8,26.7,31.6)
+n<-20
+x_bar<-mean(d7)
+s<-sd(d7)
+```
+###(a) Can you support a claim that mean rainfall from seeded clouds exceeds 25 acre-feet? Use alpha = 0.01. 
+H0:x=25
+H1:x>25
+```{r } 
+alpha<-0.01
+x0<-25
+t0<-(x_bar-x0)/(s/sqrt(n))
+ta<-qt(alpha, n-1)
+t0>ta
+```
+Since t0>ta we reject the hypothesis that it is =25, so we can support the claim. 
+
+###(b) Is there evidence that rainfall is normally distributed?
+```{r } 
+shapiro.test(d7)
+qqnorm(d7); qqline(d7)
+```
+With alpha as 0.01 then we can't reject from the shapiro test and the probability plot shows a normal distribution fits relatively well. 
+
+###(c) Compute the power of the test if the true mean rainfall is 27 acre-feet.
+```{r } 
+d<-(27-x_bar)/s
+pwr.norm.test(d=d,sig.level=alpha, n=n)
+```
+
+###(d) What sample size would be required to detect a true mean rainfall of 27.5 acre-feet if we wanted the power of the test to be at least 0.9?
+```{r } 
+d<-(27.5-x_bar)/s
+pwr.norm.test(d=d,sig.level=alpha, power=0.9)
+```
+n=158.7 so 159 samples
+
+###(e) Explain how the question in part (a) could be answered by constructing a one-sided confidence bound on the mean diameter.
+```{r } 
+ta<-qt(alpha, n-1)
+ci<-x_bar-(ta*(s/sqrt(n)))
+x0>ci
+```
+since x0 does not fall within the confidence interval [`r ci`-\infinity), we reject the hypothesis that the mean = 25 and can then assume mean > 25.
+
+###(f) Explain how the question in part (a) could be answered by using p-value.
+u>25
+```{r } 
+p<-pt(t0, n-1, lower.tail=FALSE)
+p<alpha
+```  
+Since p<alpha is false we can not reject the hypothesis that mean=25. 
+
+##Problem 8
+The sodium content of thirty 300-gram boxes of organic corn flakes was determined. The data (in milligrams) are as follows:
+```{r } 
+d8<-c(131.15,130.69,130.91,129.54,129.64,128.77,130.72,128.33,128.24,129.65,130.14,129.29,128.71,129.00,129.39,130.42,129.53,130.12,129.78,130.92,131.15,130.69,130.91,129.54,129.64,128.77,130.72,128.33,128.24,129.65)
+n<-30
+x_bar<-mean(d8)
+s<-sd(d8)
+```
+###(a) Can you support a claim that mean sodium content of this brand of corn flakes is 130 milligrams? Use alpha = 0.05.  h0:u=130, h1:u!=130
+```{r } 
+alpha <- 0.05
+u0<-130
+t0<-(x_bar-u0)/(s/sqrt(n))
+ta<-qt(alpha/2, n-1, lower.tail=FALSE)
+abs(t0)>ta
+```
+Since the result is false we can not reject the hypothesis, so we can support the claim that mean = 130mg.
+
+###(b) Is there evidence that sodium content is normally distributed?
+```{r }
+shapiro.test(d8)
+qqnorm(d8); qqline(d8)
+```
+Both test suggest this is not a normal distribution. 
+
+###(c) Compute the power of the test if the true mean sodium content is 130.5 miligrams.
+```{r } 
+d<-(130.5-x_bar)/s
+pwr.t.test(d=d,sig.level=alpha, n=n)
+```
+###(d) What sample size would be required to detect a true mean sodium content of 130.1 milligrams if we wanted the power of the test to be at least 0.75?
+```{r } 
+d<-(130.1-x_bar)/s
+pwr.t.test(d=d,sig.level=alpha, power=0.75)
+```
+n=100.35, so 101 samples would be needed. 
+
+###(e) Explain how the question in part (a) could be answered by constructing a two-sided confidence interval on the mean sodium content.
+```{r } 
+ci<-x_bar-(ta*(s/sqrt(n)))
+ci2<-x_bar+(ta*(s/sqrt(n)))
+```
+A confidence interval is calculated to be [`r ci`, `r ci2`]. If the test mean falls within this interval, then the null hypothesis can not be rejected. Since our value falls within we can not reject the hypothesis. 
+
+###(f) Explain how the question in part (a) could be answered by using p-value.
+```{r } 
+p<-2*(pt(t0, n-1, lower.tail=FALSE))
+p<alpha
+```
+Since p<alpha is false we can not reject the hypothesis.
+
+##Problem 9
+A researcher claims that at least 10% of all football helmets have manufacturing flaws that could potentially cause injury to the wearer. A sample of 200 helmets revealed that 16 helmets contained such defects.
+```{r } 
+p0<-0.10
+n<-200
+p_bar<-16/200
+```
+###(a) Does this finding support the researcher's claim? Use alpha = 0.01. h0:p=0.10, h1:p<0.10
+```{r } 
+alpha<-0.01
+z0<-(p_bar-p0)/sqrt((p0*(1-p0))/n)
+za<-qnorm(1-alpha)
+z0< -za
+```
+Since false, we can not reject the researcher's claim that at least 10% of all helmets have flaws. 
+
+###(b) Find the P-value for this test.
+```{r } 
+p<-pnorm(z0, lower.tail=FALSE)
+p<alpha
+```
+Since is false we can not reject the hypothesis. 
+
+##Problem 10
+The advertised claim for batteries for cell phones is set at 48 operating hours, with proper
+charging procedures. A study of 5000 batteries is carried out and 15 stop operating prior
+to 48 hours. Do these experimental results support the claim that less than 0.2 percent of
+the company's batteries will fail during the advertized time period, with proper charging
+procedures? Use a hypothesis-testing procedure with alpha = 0.01.
+h0: p=0.002, h1:p>0.002
+```{r } 
+alpha<-0.01
+n<-5000
+x_bar<-15
+p0<-0.002
+p_bar<-x_bar/n
+z0<-(p_bar-p0)/sqrt((p0*(1-p0))/n)
+za<-qnorm(1-alpha)
+z0< -za
+pnorm(z0)
+```
+Since the test statistic is not less than the z \alpha, we fail to reject the null hypothesis. 
+
+##Problem 11
+Consider the following 75 observations.
+```{r } 
+d11<-c(2,3,1,0,0,0,1,1,1,0,1,1,2,1,1,2,0,0,1,1,2,4,0,1,1,2,3,1,0,0,0,0,1,2,0,0,2,2,2,2,2,1,0,0,2,0,0,1,0,0,2,3,1,2,0,4,1,1,0,2,3,1,1,0,0,2,1,3,0,2,1,1,1,0,0)
+```
+Based on this data, is a Poisson distribution an appropriate model?
+```{r } 
+freq<-as.data.frame(table(d11))
+lambda<-((0*freq[1, 2])+(1*freq[2, 2])+(2*freq[3, 2])+(3*freq[4, 2])+(4*freq[5, 2]))/75
+freq$efreq<-c(dpois(0,lambda)*75, dpois(1,lambda)*75, dpois(2,lambda)*75, dpois(3,lambda)*75,dpois(4,lambda)*75)
+freq
+k<-4
+dof<-k-1-1
+chi20<-(((freq$Freq[1]-freq$efreq[1])^2/freq$efreq[1])+((freq$Freq[2]-freq$efreq[2])^2/freq$efreq[2])+((freq$Freq[3]-freq$efreq[3])^2/freq$efreq[3])+(((freq$Freq[4]+freq$Freq[5])-(freq$efreq[4]+freq$efreq[4]))^2/(freq$efreq[4]+freq$efreq[4])))
+chi2a<-qchisq(0.05,dof)
+chi20>chi2a
+
+```
+No, since chi20 > chi2a we reject the null hypothesis that the distrubution is poisson. 
+
+##Problem 12
+Use the following 60 observations.
+```{r } 
+d12<-c(107.20,102.87,109.85,103.37,105.16,93.71,99.05,96.96,92.30,105.36,91.38,113.37,81.19,100.71,90.80,121.75,104.78,94.85,83.65,91.93,101.49,105.57,99.24,98.94,100.42,112.15,99.41,83.20,89.52,108.96,107.78,99.79,98.99,85.94,101.03,102.62,96.50,89.35,108.82,106.07,109.11,88.68,101.44,98.70,95.82,93.14,101.10,115.03,126.73,109.71,97.90,109.03,109.97,100.38,104.57,91.03,91.35,94.60,100.26,103.60)
+n<-60
+```
+###Based on this data, is a normal distribution an appropriate model? To check this do the following:
+###(a) Plot the normal probability plot for this data.
+```{r }
+qqnorm(d12); qqline(d12)
+```
+###(b) Perform a chi square goodness of fit test?
+
+hist<-hist(d12, breaks=10)
+k<-5
+breaks_cdf <- pgamma(hist$breaks, shape=1/2, scale=(k-1-1)/2)  ##wrong shape & scale??? should be for chisquare?
+probs <- rollapply(breaks_cdf, 2, function(x) x[2]-x[1])
+chisq.test(hist$counts, p=probs, rescale.p=TRUE, simulate.p.value=TRUE)
+
+###(c) Use Shapiro-Wilk test.
+```{r }
+shapiro.test(d12)
+```
+
+##Problem 13
+Use the following 100 observations.
+```{r } 
+d13<-c(7.08,19.33,2.36,15.61,9.73,3.86,5.23,7.36,17.62,11.27,47.93,0.39,68.18,14.60,34.61,18.79,9.67,13.82,12.02,4.81,6.69,20.26,20.97,0.12,1.50,2.19,1.11,21.18,0.78,13.63,14.77,9.41,9.27,5.21,8.37,16.81,0.12,5.55,7.71,3.28,7.01,7.29,5.33,1.84,30.61,13.41,10.28,6.21,14.30,0.55,62.21,3.49,0.15,9.36,3.78,2.64,18.79,4.37,35.40,2.63,2.59,9.17,6.97,0.91,1.02,2.19,3.27,15.29,5.24,3.79,0.45,5.64,0.36,2.61,35.01,7.65,12.00,3.43,39.58,17.65,15.55,14.66,0.37,3.02,49.43,14.70,0.42,34.84,2.42,10.54,15.19,15.13,15.37,17.79,22.65,2.31,12.34,12.28,22.88,0.15)
+n<-100
+```
+###(a) Use normal probability plot, chi square goodness of fit test, and Shapiro-Wilk test to check normality of data.
+```{r } 
+x_bar<-mean(d13)
+s<-sd(d13)
+alpha<-0.05
+qqnorm(d13); qqline(d13)
+
+hist<-hist(d13, breaks=10)
+k<-10
+breaks_cdf <- pgamma(hist$breaks, shape=1/2, scale=(k-1-1)/2)
+probs <- rollapply(breaks_cdf, 2, function(x) x[2]-x[1])
+chisq.test(hist$counts, p=probs, rescale.p=TRUE, simulate.p.value=TRUE)
+
+shapiro.test(d13)
+```
+All three tests show this data set is not a good fit. 
+
+###(b) Does the exponential distribution seem to be a reasonable model for these data? Perform an appropriate goodness-of-fit test to answer this question.   ?????????????
+```{r } 
+hist<-hist(d13, breaks=4)
+k<-4
+breaks_cdf <- pexp(hist$breaks, x_bar)
+probs <- rollapply(breaks_cdf, 2, function(x) x[2]-x[1])
+chisq.test(hist$counts, p=probs, rescale.p=TRUE, simulate.p.value=TRUE)
+```

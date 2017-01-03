@@ -1,0 +1,473 @@
+---
+title. "MSA8190-HW7"
+author. "Kristen Biskobing"
+date. "October 28, 2016"
+output. html_document
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+#setwd("H./Desktop/School/MSA8190/homeworks")
+library("pwr")
+library("zoo")
+```
+
+##Problem 1
+####Two machines are used for filling plastic bottles with a net volume of 16.0 ounces. The fill volume can be assumed normal, with standard deviation $\sigma_1$ = 0.020 and $\sigma_2$ = 0.025 ounces. A member of the quality engineering staff suspects that both machines fill to the same mean net volume, whether or not this volume is 16.0 ounces. A random sample of 10 bottles is taken from the output of each machine.
+```{r}
+mu<-16.0
+sigma_1<-0.020
+sigma_2<-0.025
+n<-10
+mac1<-c(16.03, 16.04, 16.05, 16.05, 16.02, 16.01, 15.96, 15.98, 16.02, 15.99)
+mac2<-c(16.02, 15.97, 15.96, 16.01, 15.99, 16.03, 16.04, 16.02, 16.01, 16.00)
+x_bar1<-mean(mac1)
+x_bar2<-mean(mac2)
+```
+####(a) Do you think the engineer is correct? Use $\alpha$ = 0.05.
+```{r}
+alpha<-0.05
+Z<-(x_bar1-x_bar2-(0))/sqrt((sigma_1^2/n)+(sigma_2^2/n))
+z_a<-qnorm(alpha/2, lower.tail=FALSE)
+abs(Z)>z_a
+```
+Since `r abs(Z)` > `r z_a` is false, we can not reject the hypothesis that both machines have the same mean net volume. So we can conclude that the engineer is correct with 95% certainty. 
+
+####(b) What is the P-value for this test?
+```{r}
+2*pnorm(Z, lower.tail=FALSE)
+```
+
+####(c) What is the power of the test in part (a) for a true difference in means of 0.04?
+```{r}   
+d<-0.04/sqrt(sigma_1^2+sigma_2^2)
+pwr.norm.test(d=d, sig.level = alpha, n=n)
+```
+
+####(d) Find a 95% confidence interval on the difference in means. Provide a practical interpretation of this interval.
+```{r}
+cil<-x_bar1 - x_bar2 - (z_a*sqrt((sigma_1^2/n)+(sigma_2^2/n)))
+ciu<-x_bar1 - x_bar2 + (z_a*sqrt((sigma_1^2/n)+(sigma_2^2/n)))
+```
+The confidence interval is [`r cil`, `r ciu`]. Since $\Delta_0$, which is 0, is within the interval we can not reject the hypothesis.
+
+####(e) Assuming equal sample sizes, what sample size should be used to assure that $\beta$ = 0.05 if the true difference in means is 0.04? Assume that $\alpha$ = 0.05.
+```{r}
+pwr.norm.test(d=d, sig.level = alpha, power = 1-0.05)
+```
+Rounding up, n=9 would be needed to detect the 0.04 difference with a power of 0.95 and an $\alpha$ of 0.05.
+
+##Problem 2
+####Two machines are used to fill plastic bottles with dishwashing detergent. The standard deviations of fill volume are known to be $\sigma_1$ = 0.10 fluid ounces and $\sigma_2$ = 0.15 fluid ounces for the two machines, respectively. Two random samples of n1 = 12 bottles from machine 1 and n2 = 10 bottles from machine 2 are selected, and the sample mean fill volumes are x_bar1 = 30.87 fluid ounces and x_bar2 = 30.68 fluid ounces. Assume normality.
+```{r}
+sigma_1<-0.10
+sigma_2<-0.15
+n1<-12
+n2<-10
+x_bar1<-30.87
+x_bar2<-30.68
+```
+####(a) Construct a 90% two-sided confidence interval on the mean difference in fill volume. Interpret this interval.
+```{r}
+alpha<-0.1
+z_a<-qnorm(alpha/2, lower.tail=FALSE)
+cil<-x_bar1 - x_bar2 - (z_a*sqrt((sigma_1^2/n1)+(sigma_2^2/n2)))
+ciu<-x_bar1 - x_bar2 + (z_a*sqrt((sigma_1^2/n1)+(sigma_2^2/n2)))
+```
+The confidence interval is [`r cil`, `r ciu`]. The difference between the means of the two samples lies somewhere within this interval.  
+
+####(b) Construct a 95% two-sided confidence interval on the mean difference in fill volume. Compare and comment on the width of this interval to the width of the interval in part (a).
+```{r}
+alpha<-0.05
+z_a<-qnorm(alpha/2, lower.tail=FALSE)
+cil<-x_bar1 - x_bar2 - (z_a*sqrt((sigma_1^2/n1)+(sigma_2^2/n2)))
+ciu<-x_bar1 - x_bar2 + (z_a*sqrt((sigma_1^2/n1)+(sigma_2^2/n2)))
+```
+The confidence interval is [`r cil`, `r ciu`]. Since we would like a greater confidence in our answer, the interval is slightly larger. 
+
+####(c) Construct a 95% upper-confidence interval on the mean difference in fill volume. Interpret this interval.
+```{r}
+alpha<-0.05
+z_a<-qnorm(alpha, lower.tail=FALSE)
+ciu<-x_bar1 - x_bar2 + (z_a*sqrt((sigma_1^2/n1)+(sigma_2^2/n2)))
+```
+If $\Delta_0$ is less than or equal to `r ciu` then the null hypothesis can not be rejected. 
+
+####(d) Test the hypothesis that both machines fill to the same mean volume. Use $\alpha$ = 0.05.
+```{r}
+Z<-(x_bar1-x_bar2-(0))/sqrt((sigma_1^2/n1)+(sigma_2^2/n2))
+alpha<-0.05
+z_a<-qnorm(alpha/2, lower.tail=FALSE)
+abs(Z)>z_a
+```
+Since `r abs(Z) `> `r z_a` is true, we reject the hypothesis that these two machines have the same mean. 
+
+####(e) What is the P-value of the test in part (d)?
+```{r}
+2*pnorm(Z, lower.tail=FALSE)
+```
+####(f) If the $\beta$-error of the test when the true difference in fill volume is 0.2 fluid ounces should not exceed 0.1, what sample sizes must be used? Use $\alpha$ = 0.05.
+```{r}
+d<-0.2/sqrt(sigma_1^2+sigma_2^2)  
+pwr.norm.test(d=d, sig.level=0.05, power=1-0.1)  
+```
+A sample of 9 would suffice. 
+
+##Problem 3
+####A polymer is manufactured in a batch chemical process. Viscosity measurements are normally made on each batch, and long experience with the process has indicated that the variability in the process is fairly stable with $\sigma$ = 20. Fifteen batch viscosity measurements are given as follows. 724, 718, 776, 760, 745, 759, 795, 756, 742, 740, 761, 749, 739, 747, 742. A process change is made which involves switching the type of catalyst used in the process. Following the process change, eight batch viscosity measurements are taken. 735, 775, 729, 755, 783, 760, 738, 780. Assume that process variability is unaffected by the catalyst change.
+```{r}
+sigma<-20
+n1<-15
+samp1<-c(724, 718, 776, 760, 745, 759, 795, 756, 742, 740, 761, 749, 739, 747, 742)
+x_bar1<-mean(samp1)
+n2<-8
+samp2<-c(735, 775, 729, 755, 783, 760, 738, 780)
+x_bar2<-mean(samp2)
+```
+####(a) Find a 90% confidence interval on the difference in mean batch viscosity resulting from the process change. If the difference in mean batch viscosity is 10 or less, the manufacturer would like to detect it with a high probability.
+H0: $\mu_1$-$\mu_2$ = 10
+H1: $\mu_1$-$\mu_2$ < 10
+```{r}
+alpha<-0.1
+z_a<-qnorm(alpha, lower.tail=FALSE)
+ciu<-x_bar1 - x_bar2 + (z_a*sqrt((sigma^2/n1)+(sigma^2/n2)))
+```
+The confidence interval is [-$\infty$, `r ciu`]. Since $\Delta_0$ does not fall within the interval, we reject the null hypothesis and conclude the difference between the means of the two samples is less than 10. 
+
+####(b) Formulate and test an appropriate hypothesis using $\alpha$ = 0.10. What are your conclusions?
+```{r}
+Z<-(x_bar1-x_bar2-(10))/sqrt((sigma^2/n1)+(sigma^2/n2))
+z_a<-qnorm(alpha, lower.tail=FALSE)
+Z< -z_a
+```
+Since `r Z `< `r -z_a` is true, we reject the null hypothesis and conclude that $\Delta_0$ < 10. 
+
+####(c) Calculate the P-value for this test.
+```{r}
+pnorm(Z)
+```
+####(d) Compare the results of parts (b) and (c) to the length of the 90% confidence interval obtained in part (a) and discuss your findings.
+All three methods rejected the null hypothesis and found the result to be $\Delta_0$ < 10. 
+
+##Problem 4
+####Two catalysts may be used in a batch chemical process. Twelve batches were prepared using catalyst 1, resulting in an average yield of 86 and a sample standard deviation of 3. Fifteen batches were prepared using catalyst 2, and they resulted in an average yield of 89 with a standard deviation of 2. Assume that yield measurements are approximately normally distributed with the same standard deviation.
+```{r}
+n1<-12
+x_bar1<-86
+s1<-3
+n2<-15
+x_bar2<-89
+s2<-2
+```
+####(a) Is there evidence to support a claim that catalyst 2 produces a higher mean yield than catalyst 1? Use $\alpha$ = 0.01.
+h0:$\mu_1$-$\mu_2$=0
+h1:$\mu_1$-$\mu_2$<0
+```{r}
+alpha<-0.01
+sp<-sqrt((((n1-1)*s1^2)+((n2-1)*s2^2))/(n1+n2-2))
+T0<-(x_bar1-x_bar2-0)/(sp*sqrt((1/n1)+(1/n2)))
+ta<-qt(alpha, n1+n2-2, lower.tail=FALSE)
+T0< -ta
+```
+Since `r T0` < `r -ta` is true, we reject the null hypothesis and can support the claim that catalyst 2 produces a higher mean yield. 
+
+####(b) Find a 95% confidence interval on the difference in mean yields.
+```{r}
+alpha<-0.05
+ta<-qt(alpha/2, n1+n2-2, lower.tail=FALSE)
+cil<-x_bar1 - x_bar2 - (ta*sp*sqrt((1/n1)+(1/n2)))
+ciu<-x_bar1 - x_bar2 + (ta*sp*sqrt((1/n1)+(1/n2)))
+```
+The confidence interval is [`r cil`, `r ciu`].
+
+##Problem 5
+####The deflection temperature under load for two different types of plastic pipe is being investigated. Two random samples of 15 pipe specimens are tested, and the deflection temperatures observed are as follows (in &deg;F).
+```{r}
+samp1<-c(206, 188, 205, 187, 194, 193, 207, 185, 189, 213, 192, 210, 194, 178, 205)
+samp2<-c(177, 197, 206, 201, 180, 176, 185, 200, 197, 192, 198, 188, 189, 203, 192)
+n<-15
+s1<-sd(samp1)
+s2<-sd(samp2)
+```
+####(a) Construct box plots and normal probability plots for the two samples. Do these plots provide support of the assumptions of normality and equal variances? Write a practical interpretation for these plots.
+```{r}
+qqnorm(samp1); qqline(samp1)
+qqnorm(samp2); qqline(samp2)
+```
+
+The samples appear to follow a normal distrubtion, with different tendency toward the tails. 
+
+```{r}
+boxplot(samp1) 
+boxplot(samp2)
+```
+
+The variances seem to be pretty equal.
+
+####(b) Compare two variance using an F test.
+```{r}
+F0<-s1^2/s2^2
+fa1<-qf(0.05, n-1, n-1)
+fa2<-qf(0.95, n-1, n-1)
+cil<-fa1*F0
+ciu<-fa2*F0
+```
+Since 1 falls within the confidence interval [`r cil`, `r ciu`], we fail to reject the null hypothesis and conclude that the variances are equal. 
+
+####(c) Do the data support the claim that the deflection temperature under load for type 2 pipe exceeds that of type 1? In reaching your conclusions, use $\alpha$ = 0.05.
+H0: $\mu_1$-$\mu_2$=0
+H1: $\mu_1$-$\mu_2$<0
+```{r}
+alpha<-0.05
+x1_bar<-mean(samp1)
+x2_bar<-mean(samp2)
+sp<-sqrt((((n-1)*s1^2)+((n-1)*s2^2))/(n+n-2))
+T0<-(x1_bar-x2_bar-0)/(sp*sqrt((1/n)+(1/n)))
+ta<-qt(alpha, n+n-2, lower.tail=FALSE)
+T0< -ta
+```
+Since `r T0` > `r -ta`, the null hypothesis can not be rejected and the claim that type 2 pipe deflection temperature exceeds type 1 can not be supported. 
+
+####(d) Calculate a P-value for the test in part (c).
+```{r}
+pt(T0, n+n-2, lower.tail=FALSE)
+```
+
+####(e) Suppose that if the mean deflection temperature for type 2 pipe exceeds that of type 1 by as much as 5&deg;F, it is important to detect this difference with probability at least 0.90. Is the choice of n1 = n2 = 15 in part (a) of this Problem adequate?
+```{r}
+d<-5/(2*sp)
+pwr.t.test(d=d, sig.level=alpha, power=0.9)
+```
+No, a sample size of at lease 336 would be necessary to detect this differenece. 
+
+##Problem 6
+####Two suppliers manufacture a plastic gear used in a laser printer. The impact strength of these gears measured in foot-pounds is an important characteristic. A random sample of 10 gears from supplier 1 results in x_bar1 = 290 and s1 = 12, while another random sample of 16 gears from the second supplier results in x_bar2 = 321 and s2 = 22.
+```{r}
+n1<-10
+x_bar1<-290
+s1<-12
+n2<-16
+x_bar2<-321
+s2<-22
+```
+####(a) Is there evidence to support the claim that supplier 2 provides gears with higher mean impact strength? Use $\alpha$ = 0.05, and assume that both populations are normally distributed but the variances are not equal.
+h0: $\mu_1$-$\mu_2$=$\Delta_0$=0
+h1: $\mu_1$-$\mu_2$=$\Delta_0$<0
+```{r}
+alpha <-0.05
+T0<-(x_bar1-x_bar2-0)/sqrt((s1^2/n1)+(s2^2/n2))
+v<-((s1^2/n1)+(s2^2/n2))^2/(((s1^2/n1)^2/(n1-1))+((s2^2/n2)^2/(n2-1)))
+ta<-qt(alpha, round(v), lower.tail=FALSE)
+T0<ta
+```
+Yes. since the test is true,`r T0` < `r ta`, we reject the null hypothesis that the mean impact strenghts are the same and conclude that the second supplier provides gears with higher mean impact strength.
+
+####(b) What is the P-value for this test?
+```{r}
+pt(T0, round(v), lower.tail=FALSE)
+```
+
+####(c) Do the data support the claim that the mean impact strength of gears from supplier 2 is at least 25 foot-pounds higher than that of supplier 1? Make the same assumptions as in part (a).
+h0: $\mu_1$-$\mu_2$=$\Delta_0$=-25
+h1: $\mu_1$-$\mu_2$=$\Delta_0$<-25
+```{r}
+T0<-(x_bar1-x_bar2+25)/sqrt((s1^2/n1)+(s2^2/n2))
+ciu<-x_bar1-x_bar2+(ta*sqrt((s1^2/n1)+(s2^2/n2)))
+```
+No, since $\Delta_0$ is less than `r ciu `, the claim that the mean impact strength of the gears from supplier 2 is at least 25 ft-lbs higher than supplier 1 can not be supported. 
+
+####(d) Statistically verify the assumption that the variances are not equal.
+h0: $\sigma_1$/$\sigma_2$=1
+h1: $\sigma_1$/$\sigma_2$<>1
+```{r}
+F0<-s1^2/s2^2
+fa1<-qf(alpha/2, n1-1, n2-1, lower.tail=FALSE)
+fa2<-qf(alpha/2, n1-1, n2-1)
+cil<-F0*fa2
+ciu<-F0*fa1
+```
+Since 1 does not fall within the interval [`r cil`, `r ciu`], we reject the hypothesis that the variances are equal and can verify the assumption that they are not equal. 
+
+##Problem 7
+####The "spring-like effect" in a golf club could be determined by measuring the coefficient of restitution (the ratio of the outbound velocity to the inbound velocity of a golf ball fired at the clubhead). Twelve randomly selected drivers produced by two clubmakers are tested and the coefficient of restitution measured. The data follow.
+```{r}
+n<-12
+club1<-c(0.8406, 0.8104, 0.8234, 0.8198, 0.8235, 0.8562, 0.8123, 0.7976, 0.8184, 0.8265, 0.7773, 0.7871)
+club2<-c(0.8305, 0.7905, 0.8352, 0.8380, 0.8145, 0.8465, 0.8244, 0.8014, 0.8309, 0.8405, 0.8256, 0.8476)
+x_bar1<-mean(club1)
+x_bar2<-mean(club2)
+s1<-sd(club1)
+s2<-sd(club2)
+```
+####(a) Is there evidence that coefficient of restitution is approximately normally distributed? Is an assumption of equal variances justified?
+```{r}
+qqnorm(club1); qqline(club1)
+qqnorm(club2); qqline(club2)
+
+F0<-s1^2/s2^2
+fa1<-qf(0.05/2, n-1, n-1, lower.tail=FALSE)
+fa2<-qf(0.05/2, n-1, n-1)
+cil<-F0*fa2
+ciu<-F0*fa1
+```
+Yes, the coefficient does appear to be normally distributed for the most part, with the discrepancy spreading as you move towards the tails, particularly on the lower tail of the second plot. The variances pass the equality test, [`r cil`, `r ciu`] includes 1, so we can assume they are equal.  
+
+####(b) Test the hypothesis that both brands of ball have equal mean coefficient of restitution. Use $\alpha$ = 0.05.
+```{r}
+alpha <-0.05
+sp<-sqrt((((n-1)*s1^2)+((n-1)*s2^2))/(n+n-2))
+T0<-(x_bar1-x_bar2-0)/(sp*sqrt((1/n)+(1/n)))
+ta<-qt(alpha, n+n-2, lower.tail=FALSE)
+cil<-x_bar1-x_bar2-(ta*sp*sqrt((1/n)+(1/n)))
+ciu<-x_bar1-x_bar2+(ta*sp*sqrt((1/n)+(1/n)))
+```
+Since 0 falls within the interval [`r cil`, `r ciu`], we can not reject the hypothesis that the balls have equal mean coefficient of restitution. 
+
+####(c) What is the P-value of the test statistic in part (b)?
+```{r}
+pt(T0, n+n-2, lower.tail=FALSE)
+```
+####(d) What is the power of the statistical test in part (b) to detect a true difference in mean coefficient of restitution of 0.2?
+```{r}
+d<-0.2/(2*sp)
+pwr.t.test(n=n,d=d,sig.level=0.05)
+```
+####(e) What sample size would be required to detect a true difference in mean coefficient of restitution of 0.1 with power of approximately 0.8?
+```{r}
+d<-0.1/(2*sp)
+pwr.t.test(d=d,sig.level=0.05, power=0.8)
+```
+Rounding up n=4 would be needed. 
+
+####(f) Construct a 95% two-sided CI on the mean difference in coefficient of restitution between the two brands of golf clubs.
+```{r}
+alpha<-0.05
+ta<-qt(alpha/2, n+n-2, lower.tail=FALSE)
+cil<-x_bar1 - x_bar2 - (ta*sp*sqrt((1/n)+(1/n)))
+ciu<-x_bar1 - x_bar2 + (ta*sp*sqrt((1/n)+(1/n)))
+```
+The confidence interval is [`r cil`, `r ciu`].
+
+##Problem 8
+####A computer scientist is investigating the usefulness of two different design languages in improving programming tasks. Twelve expert programmers, familiar with both languages, are asked to code a standard function in both languages, and the time (in minutes) is recorded. The data follow.
+
+H0: $\mu_d$=0
+H1: $\mu_d!=0$
+```{r}
+lang1<-c(17,16,21,14,18,24,16,14,21,23,13,18)
+lang2<-c(18,14,19,11,23,21,10,13,19,24,15,20)
+diff<-lang1-lang2
+n<-12
+mud<-mean(diff)
+sd<-sd(diff)
+```
+####(a) Find a 95% confidence interval on the difference in mean coding times. Is there any indication that one design language is preferable?
+```{r}
+alpha = 0.05
+ta<-qt(alpha/2, n-1, lower.tail=FALSE)
+cil<-mud-(ta*(sd/sqrt(n)))
+ciu<-mud+(ta*(sd/sqrt(n)))
+```
+The confidence interval is [`r cil`, `r ciu`]. The $\mu_d$ value is within the interval so we can not support a claim that either program is better then the other.  
+
+####(b) Is the assumption that the difference in coding time is normally distributed reasonable? Show evidence to support your answer.
+```{r}
+qqnorm(lang1-lang2); qqline(lang1-lang2)
+```
+
+Yes, from the plot we can see that it does follow the normal probability plot pretty well. 
+
+##Problem 9
+####Ten individuals have participated in a diet-modification program to stimulate weight loss. Their weight both before and after participation in the program is shown in the following list. Is there evidence to support the claim that this particular diet-modification program is effective in producing a mean weight reduction? Use $\alpha$ = 0.05.
+
+H0: $\mu_d$=0
+H1: $\mu_d$>0
+```{r}
+n<-10
+alpha<-0.05
+diet1<-c(195,213,247,201,187,210,215,246,294,310)
+diet2<-c(187,195,221,190,175,197,199,221,278,285)
+diff<-diet1-diet2
+
+mud<-mean(diff)
+sd<-sd(diff)
+T0<-(mud-0)/(sd/sqrt(n))
+ta<-qt(alpha, n-1, lower.tail=FALSE)
+T0>ta
+```
+Since `r T0` >`r ta` is true, the null hypothesis can be rejected and we can support the claim that this diet-modification program produces a mean weight reduction. 
+
+
+##Problem 10
+####A study was performed to determine whether men and women differ in their repeatability in assembling components on printed circuit boards. Random samples of 25 men and 21 women were selected, and each subject assembled the units. The two sample standard deviations of assembly time were smen = 0.98 minutes and swomen = 1.02 minutes. Is there evidence to support the claim that men and women differ in repeatability for this assembly task? Use $\alpha$ = 0.02 and state any necessary assumptions about the underlying distribution of the data.
+
+H0: $\sigma_1^2=\sigma_2^2$
+H1: $\sigma_1^2!=\sigma_2^2$
+
+It must be assumed that both of the datasets follow a normal distribution and that both populations are independent. 
+```{r}
+n1<-25
+n2<-21
+s1<-0.98
+s2<-1.02
+alpha <-0.02
+
+F0<-s1^2/s2^2
+fa1<-qf(1-alpha/2, n1-1, n2-1)
+fa2<-qf(alpha/2, n1-1, n2-1)
+cil<-F0*fa2
+ciu<-F0*fa1
+```
+Since 1 falls within the confidence interval [`r cil`, `r ciu`] we can not reject the null hypothesis so there is not evidence to support the claim that men and women differ in repeatability for the assembly task. 
+
+##Problem 11
+####Two different types of polishing solution are being evaluated for possible use in a tumble-polish operation for manufacturing interocular lenses used in the human eye following cataract surgery. Three hundred lenses were tumble-polished using the first polishing solution, and of this number 253 had no polishing-induced defects. Another 300 lenses were tumble-polished using the second polishing solution, and 196 lenses were satisfactory upon completion. Is there any reason to believe that the two polishing solutions differ? Use $\alpha$ = 0.01. Discuss how this question could be answered with a confidence interval on p1 - p2.
+
+H0: p1=p2
+H1: p1<>p2
+```{r}
+n<-300
+p1<-253/n
+p2<-196/n
+p<-(253+196)/(300+300)
+alpha<-0.01
+
+Z0<-(p1-p2)/sqrt(p*(1-p)*((1/n)+(1/n)))
+za<-qnorm(alpha/2, lower.tail=FALSE)
+
+cil<-p1-p2-(za*sqrt(((p*(1-p))/n)+((p*(1-p))/n)))
+ciu<-p1-p2+(za*sqrt(((p*(1-p))/n)+((p*(1-p))/n)))
+
+```
+The confidence interval for this problem is [`r cil`, `r ciu`]. Since 0 does not fall within this interval we reject the null hypothesis and conclude that there is a difference between the two polishing solutions. 
+
+##Problem 12
+####A procurement specialist has purchased 25 resistors from vendor 1 and 35 resistors from vendor 2. Each resistors resistance is measured with the following results.
+```{r}
+n1<-25
+n2<-35
+res1<-c(96.8,99.6,99.7,99.4,98.6,100,99.4,101.1,99.8,100.3,99.9,97.7,99.1,98.5,101.1,98.6,99.6,98.3,103.7,101.9,101.2,98.2,97.7,101,98.2)
+res2<-c(106.8,103.2,102.6,104,104.6,106.4,106.8,103.7,100.3,106.3,103.5,106.8,104.7,106.8,104,102.2,106.3,104.1,104.7,105.1,107,102.8,109.2,107.1,108,104,104.3,104.2,107.2,107.7,102.2,106.2,105.8,103.4,105.4)
+```
+####(a) What distributional assumption is needed to test the claim that the variance of resistance of product from vendor 1 is not significantly different from the variance of resistance of product from vendor 2? Perform a graphical procedure to check this assumption.
+
+To use the ratio of two variances test, both samples must follow a normal distribution.
+```{r}
+qqnorm(res1); qqline(res1)
+qqnorm(res2); qqline(res2)
+```
+
+####(b) Perform an appropriate statistical hypothesis-testing procedure to determine whether the procurement specialist can claim that the variance of resistance of product from vendor 1 is significantly different from the variance of resistance of product from vendor 2.
+H0: $\sigma_1^2 = \sigma_2^2$
+H1: $\sigma_1^2 != \sigma_2^2$
+```{r}
+alpha<-0.05
+s1<-sd(res1)
+s2<-sd(res2)
+F0<-s1^2/s2^2
+fa1<-qf(alpha/2, n1-1, n2-1, lower.tail=FALSE)
+fa2<-qf(alpha/2, n1-1, n2-1)
+F0>fa1
+F0<fa2
+```
+Since both results are false, `r F0` >`r fa1` and `r F0` <`r fa2` , we can not reject the null hypothesis and can conclude that there is not enough statistical evidence to support the claim the the variance of resistance of product from vendor 1 is significantly different than from vendor 2. 
